@@ -238,15 +238,16 @@
 
 <script src="config.js"></script>
 <script>
-//
-const SUPABASE_URL      = window.SUPABASE_URL;
-const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY;
-const ADMIN_PASSWORD    = window.ADMIN_PASSWORD;
-const STORAGE_BUCKET    = window.STORAGE_BUCKET || 'product-images';
+
+// ── Config (read from config.js) ──────────────
+var SUPABASE_URL      = window.SUPABASE_URL;
+var SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY;
+var ADMIN_PASSWORD    = window.ADMIN_PASSWORD;
+var STORAGE_BUCKET    = window.STORAGE_BUCKET || 'product-images';
 
 // ── Auth ──────────────────────────────────────
 function checkLogin() {
-    const pw = document.getElementById('pwInput').value;
+    var pw = document.getElementById('pwInput').value;
     if (pw === ADMIN_PASSWORD) {
         document.getElementById('loginOverlay').classList.add('hidden');
         document.getElementById('app').classList.add('visible');
@@ -255,87 +256,90 @@ function checkLogin() {
         document.getElementById('loginErr').textContent = 'Incorrect password.';
     }
 }
-document.getElementById('pwInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkLogin(); });
+document.getElementById('pwInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') checkLogin(); });
 
 // ── Supabase helpers ──────────────────────────
-async function sbFetch(path, opts = {}) {
-    const r = await fetch(`${SUPABASE_URL}${path}`, {
-        ...opts,
-        headers: {
+async function sbFetch(path, opts) {
+    opts = opts || {};
+    var r = await fetch(SUPABASE_URL + path, Object.assign({}, opts, {
+        headers: Object.assign({
             'apikey': SUPABASE_ANON_KEY,
-            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-            'Content-Type': 'application/json',
-            ...(opts.headers || {})
-        }
-    });
+            'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json'
+        }, opts.headers || {})
+    }));
     return r;
 }
 
 async function uploadImage(file) {
-    const ext  = file.name.split('.').pop();
-    const name = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const r = await fetch(
-        `${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${name}`,
+    var ext  = file.name.split('.').pop();
+    var name = Date.now() + '-' + Math.random().toString(36).slice(2) + '.' + ext;
+    var r = await fetch(
+        SUPABASE_URL + '/storage/v1/object/' + STORAGE_BUCKET + '/' + name,
         {
             method: 'POST',
             headers: {
                 'apikey': SUPABASE_ANON_KEY,
-                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
                 'Content-Type': file.type,
                 'x-upsert': 'false'
             },
             body: file
         }
     );
-    if (!r.ok) { const e = await r.json(); throw new Error(e.error || 'Upload failed'); }
-    return `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${name}`;
+    if (!r.ok) { var e = await r.json(); throw new Error(e.error || 'Upload failed'); }
+    return SUPABASE_URL + '/storage/v1/object/public/' + STORAGE_BUCKET + '/' + name;
 }
 
 // ── Image preview / staging ───────────────────
-let stagedFiles  = [];
-let existingUrls = [];
+var stagedFiles  = [];
+var existingUrls = [];
 
-document.getElementById('fileInput').addEventListener('change', e => {
-    addFiles([...e.target.files]);
+document.getElementById('fileInput').addEventListener('change', function(e) {
+    addFiles(Array.from(e.target.files));
     e.target.value = '';
 });
 
-const zone = document.getElementById('uploadZone');
-zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag'); });
-zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
-zone.addEventListener('drop', e => {
+var zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover',  function(e) { e.preventDefault(); zone.classList.add('drag'); });
+zone.addEventListener('dragleave', function()  { zone.classList.remove('drag'); });
+zone.addEventListener('drop', function(e) {
     e.preventDefault(); zone.classList.remove('drag');
-    addFiles([...e.dataTransfer.files].filter(f => f.type.startsWith('image/')));
+    addFiles(Array.from(e.dataTransfer.files).filter(function(f) { return f.type.startsWith('image/'); }));
 });
 
 function addFiles(files) {
-    const remaining = 5 - stagedFiles.length - existingUrls.length;
-    files.slice(0, remaining).forEach(f => {
-        if (f.size > 5 * 1024 * 1024) { alert(`${f.name} is over 5 MB and was skipped.`); return; }
+    var remaining = 5 - stagedFiles.length - existingUrls.length;
+    files.slice(0, remaining).forEach(function(f) {
+        if (f.size > 5 * 1024 * 1024) { alert(f.name + ' is over 5 MB and was skipped.'); return; }
         stagedFiles.push(f);
     });
     renderPreviews();
 }
 
 function renderPreviews() {
-    const row = document.getElementById('previewRow');
+    var row = document.getElementById('previewRow');
     row.innerHTML = '';
-    existingUrls.forEach((url, i) => {
-        const div = document.createElement('div');
+
+    existingUrls.forEach(function(url, i) {
+        var div = document.createElement('div');
         div.className = 'preview-thumb';
-        div.innerHTML = `<img src="${url}"><button class="rm" title="Remove" onclick="removeExisting(${i})">✕</button>`;
+        div.innerHTML = '<img src="' + url + '"><button class="rm" title="Remove" onclick="removeExisting(' + i + ')">✕</button>';
         row.appendChild(div);
     });
-    stagedFiles.forEach((file, i) => {
-        const div = document.createElement('div');
+
+    stagedFiles.forEach(function(file, i) {
+        var div = document.createElement('div');
         div.className = 'preview-thumb';
-        const img = document.createElement('img');
-        const reader = new FileReader();
-        reader.onload = e => { img.src = e.target.result; };
+        var img = document.createElement('img');
+        var reader = new FileReader();
+        reader.onload = function(e) { img.src = e.target.result; };
         reader.readAsDataURL(file);
-        const btn = document.createElement('button');
+        var btn = document.createElement('button');
         btn.className = 'rm'; btn.title = 'Remove'; btn.textContent = '✕';
-        btn.onclick = () => { stagedFiles.splice(i, 1); renderPreviews(); };
+        btn.onclick = (function(idx) {
+            return function() { stagedFiles.splice(idx, 1); renderPreviews(); };
+        })(i);
         div.appendChild(img); div.appendChild(btn);
         row.appendChild(div);
     });
@@ -345,41 +349,41 @@ function removeExisting(i) { existingUrls.splice(i, 1); renderPreviews(); }
 
 // ── Submit ────────────────────────────────────
 async function submitListing() {
-    const btn    = document.getElementById('submitBtn');
-    const msg    = document.getElementById('formMsg');
-    const editId = document.getElementById('editId').value;
+    var btn    = document.getElementById('submitBtn');
+    var msg    = document.getElementById('formMsg');
+    var editId = document.getElementById('editId').value;
 
-    const title     = document.getElementById('fTitle').value.trim();
-    const price     = parseFloat(document.getElementById('fPrice').value);
-    const category  = document.getElementById('fCategory').value;
-    const condition = document.getElementById('fCondition').value;
-    const size      = document.getElementById('fSize').value.trim();
-    const desc      = document.getElementById('fDesc').value.trim();
-    const location  = document.getElementById('fLocation').value.trim();
-    const sold      = document.getElementById('fSold').checked;
+    var title     = document.getElementById('fTitle').value.trim();
+    var price     = parseFloat(document.getElementById('fPrice').value);
+    var category  = document.getElementById('fCategory').value;
+    var condition = document.getElementById('fCondition').value;
+    var size      = document.getElementById('fSize').value.trim();
+    var desc      = document.getElementById('fDesc').value.trim();
+    var location  = document.getElementById('fLocation').value.trim();
+    var sold      = document.getElementById('fSold').checked;
 
     if (!title || isNaN(price)) { msg.textContent = 'Title and price are required.'; msg.className = 'form-msg err'; return; }
 
     btn.disabled = true; msg.textContent = '';
 
     try {
-        let uploadedUrls = [];
+        var uploadedUrls = [];
         if (stagedFiles.length > 0) {
-            document.getElementById('uploadProgress').textContent = `Uploading ${stagedFiles.length} image(s)…`;
-            for (let i = 0; i < stagedFiles.length; i++) {
-                const url = await uploadImage(stagedFiles[i]);
+            document.getElementById('uploadProgress').textContent = 'Uploading ' + stagedFiles.length + ' image(s)…';
+            for (var i = 0; i < stagedFiles.length; i++) {
+                var url = await uploadImage(stagedFiles[i]);
                 uploadedUrls.push(url);
-                document.getElementById('uploadProgress').textContent = `Uploaded ${i+1} / ${stagedFiles.length}`;
+                document.getElementById('uploadProgress').textContent = 'Uploaded ' + (i + 1) + ' / ' + stagedFiles.length;
             }
         }
         document.getElementById('uploadProgress').textContent = '';
 
-        const allImages = [...existingUrls, ...uploadedUrls];
-        const payload   = { title, price, category, condition, size, description: desc, location, sold, images: JSON.stringify(allImages) };
+        var allImages = existingUrls.concat(uploadedUrls);
+        var payload   = { title: title, price: price, category: category, condition: condition, size: size, description: desc, location: location, sold: sold, images: JSON.stringify(allImages) };
 
-        let r;
+        var r;
         if (editId) {
-            r = await sbFetch(`/rest/v1/products?id=eq.${editId}`, {
+            r = await sbFetch('/rest/v1/products?id=eq.' + editId, {
                 method: 'PATCH', headers: { 'Prefer': 'return=minimal' }, body: JSON.stringify(payload)
             });
         } else {
@@ -388,7 +392,7 @@ async function submitListing() {
             });
         }
 
-        if (!r.ok) { const e = await r.json(); throw new Error(e.message || JSON.stringify(e)); }
+        if (!r.ok) { var err2 = await r.json(); throw new Error(err2.message || JSON.stringify(err2)); }
 
         msg.textContent = editId ? 'Listing updated!' : 'Listing added!';
         msg.className   = 'form-msg ok';
@@ -405,50 +409,49 @@ async function submitListing() {
 }
 
 // ── Load + render listings ────────────────────
-let allListings = [];
+var allListings = [];
 
 async function loadListings() {
-    const container = document.getElementById('listingsContainer');
+    var container = document.getElementById('listingsContainer');
     try {
-        const r = await sbFetch('/rest/v1/products?select=*&order=created_at.desc');
+        var r = await sbFetch('/rest/v1/products?select=*&order=created_at.desc');
         allListings = await r.json();
         renderListings(allListings);
     } catch (err) {
-        container.innerHTML = `<p class="empty-state" style="color:#c0392b">Failed to load: ${err.message}</p>`;
+        container.innerHTML = '<p class="empty-state" style="color:#c0392b">Failed to load: ' + err.message + '</p>';
     }
 }
 
 function filterListings() {
-    const q = document.getElementById('searchInput').value.toLowerCase();
-    renderListings(allListings.filter(p => p.title.toLowerCase().includes(q)));
+    var q = document.getElementById('searchInput').value.toLowerCase();
+    renderListings(allListings.filter(function(p) { return p.title.toLowerCase().includes(q); }));
 }
 
 function renderListings(products) {
-    const container = document.getElementById('listingsContainer');
+    var container = document.getElementById('listingsContainer');
     if (!products.length) { container.innerHTML = '<p class="empty-state">No listings yet. Add one!</p>'; return; }
-    container.innerHTML = products.map(p => {
-        const images    = Array.isArray(p.images) ? p.images : JSON.parse(p.images || '[]');
-        const thumb     = images[0] || 'https://placehold.co/72x72/fce8ec/9b1528?text=?';
-        const soldBadge = p.sold ? '<span class="sold-tag">Sold</span>' : '';
-        return `
-        <div class="listing-item">
-            <img src="${thumb}" alt="${p.title}">
-            <div class="info">
-                <div class="title">${p.title}</div>
-                <div class="sub">RM ${p.price} · ${p.category} · ${p.condition}${p.size ? ' · ' + p.size : ''}</div>
-                ${soldBadge}
-            </div>
-            <div class="listing-actions">
-                <button class="btn-ghost" onclick="editListing(${p.id})">Edit</button>
-                <button class="btn-ghost btn-danger" onclick="deleteListing(${p.id}, '${p.title.replace(/'/g, "\\'")}')">Delete</button>
-            </div>
-        </div>`;
+    container.innerHTML = products.map(function(p) {
+        var images    = Array.isArray(p.images) ? p.images : JSON.parse(p.images || '[]');
+        var thumb     = images[0] || 'https://placehold.co/72x72/fce8ec/9b1528?text=?';
+        var soldBadge = p.sold ? '<span class="sold-tag">Sold</span>' : '';
+        return '<div class="listing-item">' +
+            '<img src="' + thumb + '" alt="' + p.title + '">' +
+            '<div class="info">' +
+                '<div class="title">' + p.title + '</div>' +
+                '<div class="sub">RM ' + p.price + ' · ' + p.category + ' · ' + p.condition + (p.size ? ' · ' + p.size : '') + '</div>' +
+                soldBadge +
+            '</div>' +
+            '<div class="listing-actions">' +
+                '<button class="btn-ghost" onclick="editListing(' + p.id + ')">Edit</button>' +
+                '<button class="btn-ghost btn-danger" onclick="deleteListing(' + p.id + ', \'' + p.title.replace(/'/g, "\\'") + '\')">Delete</button>' +
+            '</div>' +
+        '</div>';
     }).join('');
 }
 
 // ── Edit ──────────────────────────────────────
 function editListing(id) {
-    const p = allListings.find(x => x.id === id);
+    var p = allListings.find(function(x) { return x.id === id; });
     if (!p) return;
     document.getElementById('formTitle').textContent    = 'Edit Listing';
     document.getElementById('editId').value             = p.id;
@@ -464,7 +467,7 @@ function editListing(id) {
     document.getElementById('cancelBtn').style.display = 'block';
     document.getElementById('formMsg').textContent      = '';
     stagedFiles  = [];
-    existingUrls = Array.isArray(p.images) ? [...p.images] : JSON.parse(p.images || '[]');
+    existingUrls = Array.isArray(p.images) ? p.images.slice() : JSON.parse(p.images || '[]');
     renderPreviews();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -491,506 +494,9 @@ function resetForm() {
 
 // ── Delete ────────────────────────────────────
 async function deleteListing(id, title) {
-    if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
+    if (!confirm('Delete "' + title + '"? This cannot be undone.')) return;
     try {
-        const r = await sbFetch(`/rest/v1/products?id=eq.${id}`, { method: 'DELETE', headers: { 'Prefer': 'return=minimal' } });
-        if (!r.ok) throw new Error('Delete failed');
-        loadListings();
-    } catch (err) {
-        alert('Error deleting: ' + err.message);
-    }
-}
-
-</script>
-</body>
-</html>
-        /* ── App shell ── */
-        #app { display: none; }
-        #app.visible { display: block; }
-
-        header {
-            background: var(--black); color: var(--white);
-            padding: 18px 32px; display: flex; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 100;
-        }
-        header h1 { font-size: 1rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
-        header a { color: #aaa; font-size: 0.8rem; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; }
-        header a:hover { color: var(--white); }
-
-        .shell { max-width: 1100px; margin: 0 auto; padding: 36px 24px; display: grid; grid-template-columns: 380px 1fr; gap: 40px; }
-        @media (max-width: 840px) { .shell { grid-template-columns: 1fr; } }
-
-        /* ── Form panel ── */
-        .panel { background: var(--white); border: 1px solid var(--border); padding: 28px; }
-        .panel h2 { font-size: 0.85rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 14px; }
-
-        label { display: block; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; margin-top: 18px; color: var(--gray); }
-        label:first-of-type { margin-top: 0; }
-
-        input[type="text"], input[type="number"], select, textarea {
-            width: 100%; padding: 10px 12px; border: 1px solid var(--border);
-            font-size: 0.92rem; background: #fafafa; outline: none;
-            font-family: inherit; color: var(--black);
-        }
-        input:focus, select:focus, textarea:focus { border-color: var(--black); background: var(--white); }
-        textarea { resize: vertical; min-height: 80px; }
-
-        /* image uploader */
-        .upload-zone {
-            border: 2px dashed var(--border); padding: 24px; text-align: center;
-            cursor: pointer; transition: border-color 0.2s; margin-top: 8px;
-            background: #fafafa;
-        }
-        .upload-zone:hover, .upload-zone.drag { border-color: var(--black); }
-        .upload-zone p { font-size: 0.82rem; color: var(--gray); pointer-events: none; }
-        .upload-zone strong { font-size: 0.9rem; display: block; margin-bottom: 4px; }
-        #fileInput { display: none; }
-
-        .preview-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-        .preview-thumb {
-            position: relative; width: 72px; height: 72px;
-            border: 1px solid var(--border); overflow: hidden;
-        }
-        .preview-thumb img { width: 100%; height: 100%; object-fit: cover; }
-        .preview-thumb .rm {
-            position: absolute; top: 2px; right: 2px;
-            background: rgba(0,0,0,0.65); color: #fff;
-            border: none; cursor: pointer; font-size: 0.7rem;
-            width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
-            line-height: 1;
-        }
-        .upload-progress { font-size: 0.78rem; color: var(--gray); margin-top: 8px; min-height: 18px; }
-
-        /* row for sold toggle */
-        .row-inline { display: flex; align-items: center; gap: 10px; margin-top: 18px; }
-        .row-inline label { margin: 0; }
-        input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
-
-        /* buttons */
-        .btn-primary {
-            display: block; width: 100%; padding: 14px; margin-top: 24px;
-            background: var(--black); color: var(--white); border: none;
-            font-weight: 700; font-size: 0.9rem; text-transform: uppercase;
-            letter-spacing: 1px; cursor: pointer; transition: opacity 0.2s;
-        }
-        .btn-primary:hover { opacity: 0.8; }
-        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
-        .btn-ghost {
-            padding: 6px 14px; background: transparent; border: 1px solid var(--border);
-            font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 1px; cursor: pointer; transition: all 0.2s;
-        }
-        .btn-ghost:hover { border-color: var(--black); }
-        .btn-danger { border-color: var(--red); color: var(--red); }
-        .btn-danger:hover { background: var(--red); color: var(--white); }
-
-        .form-msg { font-size: 0.82rem; margin-top: 12px; min-height: 18px; }
-        .form-msg.ok  { color: var(--green); }
-        .form-msg.err { color: var(--red); }
-
-        /* ── Listings panel ── */
-        .listings-panel h2 { font-size: 0.85rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
-        .listings-panel .controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .listings-panel .controls input {
-            flex: 1; padding: 9px 12px; border: 1px solid var(--border);
-            font-size: 0.88rem; min-width: 160px;
-        }
-
-        .listing-item {
-            background: var(--white); border: 1px solid var(--border);
-            display: grid; grid-template-columns: 72px 1fr auto; gap: 14px;
-            align-items: center; padding: 14px; margin-bottom: 10px;
-        }
-        .listing-item img { width: 72px; height: 72px; object-fit: cover; }
-        .listing-item .info .title { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; }
-        .listing-item .info .sub { font-size: 0.78rem; color: var(--gray); margin-top: 3px; }
-        .listing-item .info .sold-tag { display: inline-block; margin-top: 4px; font-size: 0.68rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 2px 7px; background: #eee; color: #888; }
-        .listing-actions { display: flex; gap: 8px; flex-direction: column; }
-
-        .empty-state { text-align: center; padding: 60px 20px; color: var(--gray); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
-    </style>
-</head>
-<body>
-
-<!-- Login gate -->
-<div id="loginOverlay">
-    <div class="login-box">
-        <h2>Admin Access</h2>
-        <input type="password" id="pwInput" placeholder="Password" autocomplete="current-password">
-        <button onclick="checkLogin()">Enter</button>
-        <p class="err" id="loginErr"></p>
-    </div>
-</div>
-
-<!-- App (hidden until logged in) -->
-<div id="app">
-    <header>
-        <h1>Admin — AJ's Preloved</h1>
-        <a href="index.html" target="_blank">View storefront ↗</a>
-    </header>
-
-    <div class="shell">
-
-        <!-- ── Left: Add / Edit form ── -->
-        <div class="panel">
-            <h2 id="formTitle">Add New Listing</h2>
-            <input type="hidden" id="editId">
-
-            <label>Title</label>
-            <input type="text" id="fTitle" placeholder="e.g. Vintage Levi's Denim Jacket">
-
-            <label>Price (RM)</label>
-            <input type="number" id="fPrice" placeholder="120" min="0" step="1">
-
-            <label>Category</label>
-            <select id="fCategory">
-                <option value="tops">Tops</option>
-                <option value="bottoms">Bottoms</option>
-                <option value="accessories">Accessories</option>
-                <option value="shoes">Shoes</option>
-                <option value="bags">Bags</option>
-                <option value="others">Others</option>
-            </select>
-
-            <label>Condition</label>
-            <select id="fCondition">
-                <option value="Excellent">Excellent</option>
-                <option value="Good">Good</option>
-                <option value="Fair">Fair</option>
-            </select>
-
-            <label>Size <span style="font-weight:400;text-transform:none">(optional)</span></label>
-            <input type="text" id="fSize" placeholder="M / 32x30 / One Size">
-
-            <label>Description</label>
-            <textarea id="fDesc" placeholder="Condition notes, wear history…"></textarea>
-
-            <label>Location</label>
-            <input type="text" id="fLocation" value="Klang, Selangor" placeholder="Klang, Selangor">
-
-            <label>Images</label>
-            <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
-                <strong>Click to upload photos</strong>
-                <p>JPG, PNG, WEBP · up to 5 images · max 5 MB each</p>
-            </div>
-            <input type="file" id="fileInput" multiple accept="image/*">
-            <div class="preview-row" id="previewRow"></div>
-            <p class="upload-progress" id="uploadProgress"></p>
-
-            <div class="row-inline">
-                <input type="checkbox" id="fSold">
-                <label for="fSold">Mark as Sold</label>
-            </div>
-
-            <button class="btn-primary" id="submitBtn" onclick="submitListing()">Add Listing</button>
-            <button class="btn-ghost" id="cancelBtn" style="display:none;margin-top:8px;width:100%;" onclick="resetForm()">Cancel Edit</button>
-            <p class="form-msg" id="formMsg"></p>
-        </div>
-
-        <!-- ── Right: Listings ── -->
-        <div class="listings-panel">
-            <h2>Your Listings</h2>
-            <div class="controls">
-                <input type="text" id="searchInput" placeholder="Search listings…" oninput="filterListings()">
-            </div>
-            <div id="listingsContainer"><p class="empty-state">Loading…</p></div>
-        </div>
-
-    </div>
-</div>
-
-<script src="config.js"></script>
-<script>
-
-// ─────────────────────────────────────────────────
-// CONFIG — read from config.js
-// ─────────────────────────────────────────────────
-var SUPABASE_URL      = window.SUPABASE_URL;
-var SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY;
-var ADMIN_PASSWORD    = window.ADMIN_PASSWORD;
-var STORAGE_BUCKET    = window.STORAGE_BUCKET || 'product-images';
-// ─────────────────────────────────────────────────
-// Auth (simple password gate — not cryptographic)
-// ─────────────────────────────────────────────────
-function checkLogin() {
-    const pw = document.getElementById('pwInput').value;
-    if (pw === ADMIN_PASSWORD) {
-        document.getElementById('loginOverlay').classList.add('hidden');
-        document.getElementById('app').classList.add('visible');
-        loadListings();
-    } else {
-        document.getElementById('loginErr').textContent = 'Incorrect password.';
-    }
-}
-document.getElementById('pwInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkLogin(); });
-
-// ─────────────────────────────────────────────────
-// Supabase helpers
-// ─────────────────────────────────────────────────
-async function sbFetch(path, opts = {}) {
-    const r = await fetch(`${SUPABASE_URL}${path}`, {
-        ...opts,
-        headers: {
-            'apikey': SUPABASE_ANON_KEY,
-            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-            'Content-Type': 'application/json',
-            ...(opts.headers || {})
-        }
-    });
-    return r;
-}
-
-async function uploadImage(file) {
-    // unique filename
-    const ext  = file.name.split('.').pop();
-    const name = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const r = await fetch(
-        `${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${name}`,
-        {
-            method: 'POST',
-            headers: {
-                'apikey': SUPABASE_ANON_KEY,
-                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                'Content-Type': file.type,
-                'x-upsert': 'false'
-            },
-            body: file
-        }
-    );
-    if (!r.ok) { const e = await r.json(); throw new Error(e.error || 'Upload failed'); }
-    return `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${name}`;
-}
-
-// ─────────────────────────────────────────────────
-// Image preview / staging
-// ─────────────────────────────────────────────────
-let stagedFiles     = []; // File objects pending upload
-let existingUrls    = []; // Already-uploaded URLs (when editing)
-
-document.getElementById('fileInput').addEventListener('change', e => {
-    addFiles([...e.target.files]);
-    e.target.value = '';
-});
-
-// Drag-and-drop
-const zone = document.getElementById('uploadZone');
-zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag'); });
-zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
-zone.addEventListener('drop', e => {
-    e.preventDefault(); zone.classList.remove('drag');
-    addFiles([...e.dataTransfer.files].filter(f => f.type.startsWith('image/')));
-});
-
-function addFiles(files) {
-    const remaining = 5 - stagedFiles.length - existingUrls.length;
-    files.slice(0, remaining).forEach(f => {
-        if (f.size > 5 * 1024 * 1024) { alert(`${f.name} is over 5 MB and was skipped.`); return; }
-        stagedFiles.push(f);
-    });
-    renderPreviews();
-}
-
-function renderPreviews() {
-    const row = document.getElementById('previewRow');
-    row.innerHTML = '';
-
-    existingUrls.forEach((url, i) => {
-        const div = document.createElement('div');
-        div.className = 'preview-thumb';
-        div.innerHTML = `<img src="${url}"><button class="rm" title="Remove" onclick="removeExisting(${i})">✕</button>`;
-        row.appendChild(div);
-    });
-
-    stagedFiles.forEach((file, i) => {
-        const div = document.createElement('div');
-        div.className = 'preview-thumb';
-        const img = document.createElement('img');
-        const reader = new FileReader();
-        reader.onload = e => { img.src = e.target.result; };
-        reader.readAsDataURL(file);
-        const btn = document.createElement('button');
-        btn.className = 'rm'; btn.title = 'Remove'; btn.textContent = '✕';
-        btn.onclick = () => { stagedFiles.splice(i, 1); renderPreviews(); };
-        div.appendChild(img); div.appendChild(btn);
-        row.appendChild(div);
-    });
-}
-
-function removeExisting(i) {
-    existingUrls.splice(i, 1);
-    renderPreviews();
-}
-
-// ─────────────────────────────────────────────────
-// Submit (add or update)
-// ─────────────────────────────────────────────────
-async function submitListing() {
-    const btn = document.getElementById('submitBtn');
-    const msg = document.getElementById('formMsg');
-    const editId = document.getElementById('editId').value;
-
-    const title    = document.getElementById('fTitle').value.trim();
-    const price    = parseFloat(document.getElementById('fPrice').value);
-    const category = document.getElementById('fCategory').value;
-    const condition= document.getElementById('fCondition').value;
-    const size     = document.getElementById('fSize').value.trim();
-    const desc     = document.getElementById('fDesc').value.trim();
-    const location = document.getElementById('fLocation').value.trim();
-    const sold     = document.getElementById('fSold').checked;
-
-    if (!title || isNaN(price)) { msg.textContent = 'Title and price are required.'; msg.className = 'form-msg err'; return; }
-
-    btn.disabled = true; msg.textContent = ''; 
-
-    try {
-        // 1. Upload any staged files
-        let uploadedUrls = [];
-        if (stagedFiles.length > 0) {
-            document.getElementById('uploadProgress').textContent = `Uploading ${stagedFiles.length} image(s)…`;
-            for (let i = 0; i < stagedFiles.length; i++) {
-                const url = await uploadImage(stagedFiles[i]);
-                uploadedUrls.push(url);
-                document.getElementById('uploadProgress').textContent = `Uploaded ${i+1} / ${stagedFiles.length}`;
-            }
-        }
-        document.getElementById('uploadProgress').textContent = '';
-
-        const allImages = [...existingUrls, ...uploadedUrls];
-
-        const payload = { title, price, category, condition, size, description: desc, location, sold, images: JSON.stringify(allImages) };
-
-        // 2. Insert or update
-        let r;
-        if (editId) {
-            r = await sbFetch(`/rest/v1/products?id=eq.${editId}`, {
-                method: 'PATCH',
-                headers: { 'Prefer': 'return=minimal' },
-                body: JSON.stringify(payload)
-            });
-        } else {
-            r = await sbFetch('/rest/v1/products', {
-                method: 'POST',
-                headers: { 'Prefer': 'return=minimal' },
-                body: JSON.stringify(payload)
-            });
-        }
-
-        if (!r.ok) { const e = await r.json(); throw new Error(e.message || JSON.stringify(e)); }
-
-        msg.textContent = editId ? 'Listing updated!' : 'Listing added!';
-        msg.className   = 'form-msg ok';
-        resetForm();
-        loadListings();
-
-    } catch (err) {
-        console.error(err);
-        msg.textContent = 'Error: ' + err.message;
-        msg.className   = 'form-msg err';
-    }
-
-    btn.disabled = false;
-}
-
-// ─────────────────────────────────────────────────
-// Load + render listings
-// ─────────────────────────────────────────────────
-let allListings = [];
-
-async function loadListings() {
-    const container = document.getElementById('listingsContainer');
-    try {
-        const r = await sbFetch('/rest/v1/products?select=*&order=created_at.desc');
-        allListings = await r.json();
-        renderListings(allListings);
-    } catch (err) {
-        container.innerHTML = `<p class="empty-state" style="color:#c0392b">Failed to load: ${err.message}</p>`;
-    }
-}
-
-function filterListings() {
-    const q = document.getElementById('searchInput').value.toLowerCase();
-    renderListings(allListings.filter(p => p.title.toLowerCase().includes(q)));
-}
-
-function renderListings(products) {
-    const container = document.getElementById('listingsContainer');
-    if (!products.length) { container.innerHTML = '<p class="empty-state">No listings yet. Add one!</p>'; return; }
-
-    container.innerHTML = products.map(p => {
-        const images = Array.isArray(p.images) ? p.images : JSON.parse(p.images || '[]');
-        const thumb  = images[0] || 'https://placehold.co/72x72/f2f2f2/999?text=?';
-        const soldBadge = p.sold ? '<span class="sold-tag">Sold</span>' : '';
-        return `
-        <div class="listing-item">
-            <img src="${thumb}" alt="${p.title}">
-            <div class="info">
-                <div class="title">${p.title}</div>
-                <div class="sub">RM ${p.price} · ${p.category} · ${p.condition}${p.size ? ' · ' + p.size : ''}</div>
-                ${soldBadge}
-            </div>
-            <div class="listing-actions">
-                <button class="btn-ghost" onclick="editListing(${p.id})">Edit</button>
-                <button class="btn-ghost btn-danger" onclick="deleteListing(${p.id}, '${p.title.replace(/'/g, "\\'")}')">Delete</button>
-            </div>
-        </div>`;
-    }).join('');
-}
-
-// ─────────────────────────────────────────────────
-// Edit
-// ─────────────────────────────────────────────────
-function editListing(id) {
-    const p = allListings.find(x => x.id === id);
-    if (!p) return;
-
-    document.getElementById('formTitle').textContent     = 'Edit Listing';
-    document.getElementById('editId').value              = p.id;
-    document.getElementById('fTitle').value              = p.title;
-    document.getElementById('fPrice').value              = p.price;
-    document.getElementById('fCategory').value           = p.category;
-    document.getElementById('fCondition').value          = p.condition;
-    document.getElementById('fSize').value               = p.size || '';
-    document.getElementById('fDesc').value               = p.description || '';
-    document.getElementById('fLocation').value           = p.location || '';
-    document.getElementById('fSold').checked             = !!p.sold;
-    document.getElementById('submitBtn').textContent     = 'Save Changes';
-    document.getElementById('cancelBtn').style.display  = 'block';
-    document.getElementById('formMsg').textContent       = '';
-
-    stagedFiles  = [];
-    existingUrls = Array.isArray(p.images) ? [...p.images] : JSON.parse(p.images || '[]');
-    renderPreviews();
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function resetForm() {
-    document.getElementById('formTitle').textContent     = 'Add New Listing';
-    document.getElementById('editId').value              = '';
-    document.getElementById('fTitle').value              = '';
-    document.getElementById('fPrice').value              = '';
-    document.getElementById('fCategory').value           = 'tops';
-    document.getElementById('fCondition').value          = 'Excellent';
-    document.getElementById('fSize').value               = '';
-    document.getElementById('fDesc').value               = '';
-    document.getElementById('fLocation').value           = 'Klang, Selangor';
-    document.getElementById('fSold').checked             = false;
-    document.getElementById('submitBtn').textContent     = 'Add Listing';
-    document.getElementById('cancelBtn').style.display  = 'none';
-    document.getElementById('formMsg').textContent       = '';
-    document.getElementById('uploadProgress').textContent = '';
-    stagedFiles  = [];
-    existingUrls = [];
-    renderPreviews();
-}
-
-// ─────────────────────────────────────────────────
-// Delete
-// ─────────────────────────────────────────────────
-async function deleteListing(id, title) {
-    if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
-    try {
-        const r = await sbFetch(`/rest/v1/products?id=eq.${id}`, { method: 'DELETE', headers: { 'Prefer': 'return=minimal' } });
+        var r = await sbFetch('/rest/v1/products?id=eq.' + id, { method: 'DELETE', headers: { 'Prefer': 'return=minimal' } });
         if (!r.ok) throw new Error('Delete failed');
         loadListings();
     } catch (err) {
