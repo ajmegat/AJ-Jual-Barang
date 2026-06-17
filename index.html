@@ -3,110 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AJ's Preloved Item</title>
+    <title>AJ Marketplace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --black: #000000;
-            --white: #ffffff;
-            --gray: #666666;
-            --light-border: #e0e0e0;
-            --dot-color: rgba(255,255,255,0.5);
-            --dot-active-color: #ffffff;
+            /* ── Brand palette from logo ── */
+            --crimson:      #7a0e1e;   /* deep background red */
+            --crimson-dark: #5c0a16;   /* darker shade for hover/depth */
+            --crimson-mid:  #9b1528;   /* mid tone for accents */
+            --blush:        #f0b8c0;   /* soft pink from the "AJ" letterforms */
+            --blush-light:  #fce8ec;   /* very pale blush for backgrounds */
+            --white:        #ffffff;
+            --off-white:    #fdf6f7;   /* warm white tinted by the crimson brand */
+            --gray:         #8a7070;   /* warm gray */
+            --border:       #e8d5d8;   /* blush-tinted border */
+            --dot-color:    rgba(255,255,255,0.45);
+            --dot-active:   #ffffff;
+
+            /* ── Typography ── */
+            --font-serif: 'Cormorant Garamond', Georgia, serif;
+            --font-sans:  'Montserrat', "Helvetica Neue", Arial, sans-serif;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
-        
-        body { background-color: var(--white); color: var(--black); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--off-white); color: var(--crimson-dark); font-family: var(--font-sans); line-height: 1.5; -webkit-font-smoothing: antialiased; }
 
         /* ── Header ── */
-        header { background: var(--black); color: var(--white); padding: 20px 5%; text-align: center; position: sticky; top: 0; z-index: 100; }
-        header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
-        header p { font-size: 0.75rem; letter-spacing: 1.5px; color: #aaa; margin-top: 4px; text-transform: uppercase; }
+        header {
+            background: var(--crimson);
+            padding: 18px 5% 20px;
+            text-align: center;
+            position: sticky; top: 0; z-index: 100;
+            border-bottom: 1px solid var(--crimson-dark);
+        }
+        header .logo-wrap { display: inline-block; }
+        header .logo-wrap img {
+            height: 64px;
+            width: auto;
+            display: block;
+            margin: 0 auto;
+            /* logo has crimson bg so it blends seamlessly */
+        }
+        header p {
+            font-family: var(--font-sans);
+            font-size: 0.68rem;
+            letter-spacing: 2.5px;
+            color: var(--blush);
+            margin-top: 6px;
+            text-transform: uppercase;
+        }
 
         /* ── Layout ── */
-        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .container { max-width: 1200px; margin: 44px auto; padding: 0 24px; }
 
         /* ── Filters ── */
-        .filters { display: flex; justify-content: center; gap: 12px; margin-bottom: 40px; flex-wrap: wrap; }
+        .filters { display: flex; justify-content: center; gap: 10px; margin-bottom: 44px; flex-wrap: wrap; }
         .filter-btn {
-            background: transparent; border: 1px solid var(--black); color: var(--black);
-            padding: 8px 20px; cursor: pointer; font-size: 0.85rem; font-weight: 600;
-            text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s ease;
+            background: transparent;
+            border: 1px solid var(--crimson-mid);
+            color: var(--crimson-mid);
+            padding: 7px 20px;
+            cursor: pointer;
+            font-family: var(--font-sans);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            transition: all 0.2s ease;
         }
-        .filter-btn.active, .filter-btn:hover { background: var(--black); color: var(--white); }
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--crimson);
+            border-color: var(--crimson);
+            color: var(--blush);
+        }
 
         /* ── Grid ── */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 40px 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 44px 20px; }
 
         /* ── Card ── */
-        .card { display: flex; flex-direction: column; opacity: 0; animation: fadeIn 0.4s ease forwards; }
+        .card { display: flex; flex-direction: column; opacity: 0; animation: fadeIn 0.4s ease forwards; background: var(--white); border: 1px solid var(--border); }
         @keyframes fadeIn { to { opacity: 1; } }
 
         /* ── Carousel ── */
         .carousel-outer {
-            position: relative; width: 100%; margin-bottom: 16px;
-            cursor: pointer; background: #f2f2f2; aspect-ratio: 1 / 1; overflow: hidden;
+            position: relative; width: 100%;
+            cursor: pointer; background: var(--blush-light); aspect-ratio: 1 / 1; overflow: hidden;
         }
         .carousel-content { display: flex; transition: transform 0.3s ease; height: 100%; }
         .carousel-content img { flex: 0 0 100%; width: 100%; height: 100%; object-fit: cover; }
 
-        /* tap hint overlay */
         .carousel-outer::after {
             content: '→';
             position: absolute; bottom: 10px; right: 12px;
-            font-size: 0.75rem; color: rgba(255,255,255,0.9);
-            background: rgba(0,0,0,0.35); padding: 2px 7px; border-radius: 20px;
+            font-size: 0.75rem; color: rgba(255,255,255,0.95);
+            background: rgba(90,10,20,0.5); padding: 2px 8px; border-radius: 20px;
             pointer-events: none; opacity: 0; transition: opacity 0.2s;
         }
         .carousel-outer.multi-image::after { opacity: 1; }
 
         .carousel-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; }
         .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dot-color); transition: background 0.2s; }
-        .dot.active { background: var(--dot-active-color); }
+        .dot.active { background: var(--dot-active); }
 
         /* ── Card info ── */
-        .card-title { font-size: 1rem; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
-        .card-price { font-size: 1.1rem; font-weight: 400; margin-bottom: 10px; }
-        .card-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+        .card-body { padding: 14px 16px 16px; display: flex; flex-direction: column; flex: 1; }
+        .card-title { font-family: var(--font-sans); font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; color: var(--crimson-dark); }
+        .card-price { font-family: var(--font-serif); font-size: 1.35rem; font-weight: 600; margin-bottom: 10px; color: var(--crimson); }
+        .card-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
         .badge {
-            font-size: 0.72rem; font-weight: 700; letter-spacing: 0.8px;
-            text-transform: uppercase; padding: 3px 9px; border: 1px solid #ddd; color: var(--gray);
+            font-size: 0.68rem; font-weight: 700; letter-spacing: 0.8px;
+            text-transform: uppercase; padding: 3px 8px;
+            border: 1px solid var(--border); color: var(--gray);
         }
-        .card-details { font-size: 0.88rem; color: var(--gray); margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .card-location { font-size: 0.78rem; color: #999; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .card-details { font-size: 0.84rem; color: var(--gray); margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .card-location { font-size: 0.72rem; color: #b09090; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.8px; }
 
         /* ── Buy Button ── */
         .btn {
-            display: block; width: 100%; padding: 14px;
-            background: var(--black); color: var(--white);
+            display: block; width: 100%; padding: 13px;
+            background: var(--crimson); color: var(--blush);
             text-align: center; text-decoration: none;
-            font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;
+            font-family: var(--font-sans); font-weight: 700; font-size: 0.78rem;
+            text-transform: uppercase; letter-spacing: 1.5px;
             transition: background 0.2s, color 0.2s; margin-top: auto;
-            border: 1px solid var(--black);
+            border: 1px solid var(--crimson);
         }
-        .btn:hover { background: transparent; color: var(--black); }
-        .btn.sold { background: #ccc; border-color: #ccc; color: #888; pointer-events: none; }
+        .btn:hover { background: var(--crimson-dark); color: var(--white); border-color: var(--crimson-dark); }
+        .btn.sold { background: var(--border); border-color: var(--border); color: var(--gray); pointer-events: none; }
 
         /* ── States ── */
-        .state-msg { text-align: center; padding: 80px 20px; color: var(--gray); letter-spacing: 1px; text-transform: uppercase; font-size: 0.85rem; }
-        .skeleton { background: #f2f2f2; border-radius: 0; }
-        .skeleton-card { display: flex; flex-direction: column; gap: 10px; }
-        .skeleton-img { aspect-ratio: 1/1; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; }
-        .skeleton-line { height: 14px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; }
+        .state-msg { text-align: center; padding: 80px 20px; color: var(--gray); letter-spacing: 1px; text-transform: uppercase; font-size: 0.82rem; }
+        .skeleton-card { display: flex; flex-direction: column; gap: 10px; background: var(--white); border: 1px solid var(--border); }
+        .skeleton-img { aspect-ratio: 1/1; background: linear-gradient(90deg, #f0e0e2 25%, #e8d0d3 50%, #f0e0e2 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; }
+        .skeleton-body { padding: 14px 16px 20px; display: flex; flex-direction: column; gap: 10px; }
+        .skeleton-line { height: 13px; background: linear-gradient(90deg, #f0e0e2 25%, #e8d0d3 50%, #f0e0e2 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; }
         .skeleton-line.short { width: 40%; }
         @keyframes shimmer { to { background-position: -200% 0; } }
 
         /* ── Footer ── */
-        footer { text-align: center; padding: 60px 20px; border-top: 1px solid var(--light-border); margin-top: 60px; }
-        .social-link { display: inline-block; margin-bottom: 15px; color: var(--black); font-weight: 700; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid var(--black); padding-bottom: 2px; }
-        footer p { color: var(--gray); font-size: 0.85rem; }
+        footer { text-align: center; padding: 60px 20px; border-top: 1px solid var(--border); margin-top: 60px; background: var(--white); }
+        .social-link { display: inline-block; margin-bottom: 15px; color: var(--crimson); font-weight: 700; text-decoration: none; font-family: var(--font-sans); text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid var(--crimson); padding-bottom: 2px; font-size: 0.85rem; }
+        .social-link:hover { color: var(--crimson-dark); border-color: var(--crimson-dark); }
+        footer p { color: var(--gray); font-size: 0.82rem; }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>AJ's Preloved Item</h1>
-    <p>Quality secondhand — Klang, Selangor</p>
+    <div class="logo-wrap">
+        <img src="logo.png" alt="AJ Marketplace">
+    </div>
+    <p>Quality Secondhand — Klang, Selangor</p>
 </header>
 
 <main class="container">
@@ -120,16 +169,16 @@
 
     <div class="grid" id="productGrid">
         <!-- skeleton placeholders while loading -->
-        <div class="skeleton-card" id="sk1"><div class="skeleton skeleton-img"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line short"></div></div>
-        <div class="skeleton-card" id="sk2"><div class="skeleton skeleton-img"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line short"></div></div>
-        <div class="skeleton-card" id="sk3"><div class="skeleton skeleton-img"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line short"></div></div>
+        <div class="skeleton-card" id="sk1"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+        <div class="skeleton-card" id="sk2"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+        <div class="skeleton-card" id="sk3"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
     </div>
 
 </main>
 
 <footer>
     <a href="https://www.threads.net/@ajmegat" target="_blank" class="social-link">Follow on Threads @ajmegat</a>
-    <p>&copy; 2026 AJ's Preloved Item. All items are sold as-is.</p>
+    <p>&copy; 2026 AJ Marketplace. All items are sold as-is.</p>
 </footer>
 
 <!-- ─────────────────────────────────────────────
@@ -219,12 +268,14 @@ function buildCard(p) {
             <div class="carousel-content">${imgTags}</div>
             ${dots}
         </div>
-        <h3 class="card-title">${p.title}</h3>
-        <div class="card-price">RM ${p.price}</div>
-        <div class="card-meta">${conditionLabel}${sizeLabel}</div>
-        <p class="card-details">${p.description || ''}</p>
-        <div class="card-location">${p.location || ''}</div>
-        ${btnHtml}
+        <div class="card-body">
+            <h3 class="card-title">${p.title}</h3>
+            <div class="card-price">RM ${p.price}</div>
+            <div class="card-meta">${conditionLabel}${sizeLabel}</div>
+            <p class="card-details">${p.description || ''}</p>
+            <div class="card-location">${p.location || ''}</div>
+            ${btnHtml}
+        </div>
     </div>`;
 }
 
