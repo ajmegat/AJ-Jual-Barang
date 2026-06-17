@@ -3,97 +3,330 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Preloved Archive</title>
+    <title>AJ's Preloved Item</title>
     <style>
-        /* Clean, Shopify-inspired CSS Reset and Variables */
+        /* MXD Supply Co Inspired Aesthetic: Clean, stark, bold */
         :root {
-            --primary: #111111;
-            --background: #ffffff;
-            --text: #333333;
-            --text-light: #666666;
-            --border: #eaeaec;
+            --black: #000000;
+            --white: #ffffff;
+            --gray: #666666;
+            --light-border: #e0e0e0;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        body { background-color: var(--background); color: var(--text); line-height: 1.5; }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; 
+        }
         
-        /* Minimalist Header */
-        header { background: #fff; padding: 24px 5%; border-bottom: 1px solid var(--border); text-align: center; position: sticky; top: 0; z-index: 100; }
-        header h1 { font-size: 1.4rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; }
+        body { 
+            background-color: var(--white); 
+            color: var(--black); 
+            line-height: 1.5; 
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Header */
+        header { 
+            background: var(--black); 
+            color: var(--white);
+            padding: 20px 5%; 
+            text-align: center; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+        }
+        
+        header h1 { 
+            font-size: 1.5rem; 
+            font-weight: 800; 
+            letter-spacing: 2px; 
+            text-transform: uppercase; 
+        }
 
         /* Layout Container */
-        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .section-title { font-size: 1.25rem; font-weight: 500; }
+        .container { 
+            max-width: 1200px; 
+            margin: 40px auto; 
+            padding: 0 20px; 
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: 1px solid var(--black);
+            color: var(--black);
+            padding: 8px 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--black);
+            color: var(--white);
+        }
 
         /* Responsive Product Grid */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 40px 20px; 
+        }
         
         /* Product Card */
-        .card { display: flex; flex-direction: column; transition: opacity 0.2s ease; }
-        .card:hover { opacity: 0.9; }
-        .card-img-wrapper { position: relative; width: 100%; padding-top: 100%; /* 1:1 Aspect Ratio */ background: #f4f4f4; border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
-        .card-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        .card { 
+            display: flex; 
+            flex-direction: column; 
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Image Carousel (Swipeable) */
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        .carousel { 
+            display: flex; 
+            overflow-x: auto; 
+            scroll-snap-type: x mandatory; 
+            -ms-overflow-style: none; 
+            scrollbar-width: none; 
+            background: #f8f8f8; 
+        }
+
+        .carousel::-webkit-scrollbar { 
+            display: none; 
+        }
+
+        .carousel img { 
+            flex: 0 0 100%; 
+            width: 100%; 
+            aspect-ratio: 1/1; 
+            object-fit: cover; 
+            scroll-snap-align: start; 
+        }
+
+        .swipe-hint {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            font-size: 0.7rem;
+            padding: 4px 8px;
+            border-radius: 20px;
+            pointer-events: none;
+            letter-spacing: 1px;
+        }
         
         /* Product Information */
-        .card-title { font-size: 1rem; font-weight: 500; margin-bottom: 6px; }
-        .card-price { font-size: 1.1rem; font-weight: 600; color: var(--primary); margin-bottom: 10px; }
-        .card-details { font-size: 0.9rem; color: var(--text-light); margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .card-location { font-size: 0.85rem; color: var(--text-light); margin-bottom: 16px; font-style: italic; }
+        .card-title { 
+            font-size: 1rem; 
+            font-weight: 700; 
+            text-transform: uppercase;
+            margin-bottom: 4px; 
+        }
+        
+        .card-price { 
+            font-size: 1.1rem; 
+            font-weight: 400; 
+            margin-bottom: 12px; 
+        }
+        
+        .card-details { 
+            font-size: 0.9rem; 
+            color: var(--gray); 
+            margin-bottom: 12px; 
+            display: -webkit-box; 
+            -webkit-line-clamp: 2; 
+            -webkit-box-orient: vertical; 
+            overflow: hidden; 
+        }
+        
+        .card-location { 
+            font-size: 0.8rem; 
+            color: var(--gray); 
+            margin-bottom: 16px; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
         
         /* Call to Action Button */
-        .btn { display: block; width: 100%; padding: 14px; background: var(--primary); color: #fff; text-align: center; text-decoration: none; border-radius: 4px; font-weight: 500; font-size: 0.9rem; transition: background 0.2s ease; margin-top: auto; }
-        .btn:hover { background: #333333; }
-        .btn-whatsapp { background: #25D366; color: white; }
-        .btn-whatsapp:hover { background: #1ebe57; }
+        .btn { 
+            display: block; 
+            width: 100%; 
+            padding: 14px; 
+            background: var(--black); 
+            color: var(--white); 
+            text-align: center; 
+            text-decoration: none; 
+            font-weight: 700; 
+            font-size: 0.9rem; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background 0.2s ease; 
+            margin-top: auto; 
+            border: 1px solid var(--black);
+        }
+        
+        .btn:hover { 
+            background: transparent; 
+            color: var(--black);
+        }
 
-        /* Simple Footer */
-        footer { text-align: center; padding: 40px 20px; border-top: 1px solid var(--border); color: var(--text-light); font-size: 0.85rem; margin-top: 60px; }
+        /* Footer */
+        footer { 
+            text-align: center; 
+            padding: 60px 20px; 
+            border-top: 1px solid var(--light-border); 
+            margin-top: 60px; 
+        }
+
+        .social-link {
+            display: inline-block;
+            margin-bottom: 15px;
+            color: var(--black);
+            font-weight: 700;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid var(--black);
+            padding-bottom: 2px;
+        }
+
+        footer p {
+            color: var(--gray); 
+            font-size: 0.85rem; 
+        }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>My Preloved Archive</h1>
+        <h1>AJ's Preloved Item</h1>
     </header>
 
     <main class="container">
-        <div class="section-header">
-            <h2 class="section-title">Latest Arrivals</h2>
-            <span style="color: var(--text-light); font-size: 0.9rem;">2 Items</span>
+        
+        <!-- Category Filters -->
+        <div class="filters">
+            <button class="filter-btn active" onclick="filterSelection('all')">All</button>
+            <button class="filter-btn" onclick="filterSelection('tops')">Tops</button>
+            <button class="filter-btn" onclick="filterSelection('bottoms')">Bottoms</button>
+            <button class="filter-btn" onclick="filterSelection('accessories')">Accessories</button>
         </div>
 
         <div class="grid">
-            <div class="card">
-                <div class="card-img-wrapper">
-                    <img src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=600&q=80" alt="Vintage Denim Jacket" class="card-img">
+            
+            <!-- Product 1: Category 'tops' -->
+            <div class="card item tops">
+                <div class="carousel-container">
+                    <div class="carousel">
+                        <!-- Add multiple images here for the carousel -->
+                        <img src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=600&q=80" alt="Item Front">
+                        <img src="https://images.unsplash.com/photo-1550639524-a6f58345a278?auto=format&fit=crop&w=600&q=80" alt="Item Detail">
+                    </div>
+                    <span class="swipe-hint">SWIPE ➔</span>
                 </div>
                 <h3 class="card-title">Vintage Levi's Denim Jacket</h3>
                 <div class="card-price">RM 120</div>
                 <p class="card-details">Size M. Excellent condition, slightly faded wash. Worn only a handful of times.</p>
-                <div class="card-location">📍 Petaling Jaya, Selangor</div>
-                <a href="https://wa.me/601161692804?text=Hi!%20I'm%20interested%20in%20buying%20the%20Vintage%20Levi's%20Denim%20Jacket%20(RM%20120)." target="_blank" class="btn btn-whatsapp">
-                    Buy via WhatsApp
+                <div class="card-location">Klang, Selangor</div>
+                <a href="https://wa.me/601161692804?text=Hi!%20I'm%20interested%20in%20buying%20the%20Vintage%20Levi's%20Denim%20Jacket%20(RM%20120)." target="_blank" class="btn">
+                    Purchase
                 </a>
             </div>
 
-            <div class="card">
-                <div class="card-img-wrapper">
-                    <img src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=600&q=80" alt="Mechanical Keyboard" class="card-img">
+            <!-- Product 2: Category 'accessories' -->
+            <div class="card item accessories">
+                <div class="carousel-container">
+                    <div class="carousel">
+                        <img src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=600&q=80" alt="Keyboard Front">
+                        <img src="https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&w=600&q=80" alt="Keyboard Side">
+                    </div>
+                    <span class="swipe-hint">SWIPE ➔</span>
                 </div>
-                <h3 class="card-title">Keychron K2 Mechanical Keyboard</h3>
+                <h3 class="card-title">Keychron K2 Keyboard</h3>
                 <div class="card-price">RM 250</div>
                 <p class="card-details">Brown switches, RGB backlight. Comes with original box and accessories. Fully functional.</p>
-                <div class="card-location">📍 Mont Kiara, KL</div>
-                <a href="https://wa.me/601161692804?text=Hi!%20I'm%20interested%20in%20buying%20the%20Keychron%20K2%20Keyboard%20(RM%20250)." target="_blank" class="btn btn-whatsapp">
-                    Buy via WhatsApp
+                <div class="card-location">Klang, Selangor</div>
+                <a href="https://wa.me/601161692804?text=Hi!%20I'm%20interested%20in%20buying%20the%20Keychron%20K2%20Keyboard%20(RM%20250)." target="_blank" class="btn">
+                    Purchase
                 </a>
             </div>
+
+            <!-- Product 3: Category 'bottoms' -->
+            <div class="card item bottoms">
+                <div class="carousel-container">
+                    <div class="carousel">
+                        <img src="https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?auto=format&fit=crop&w=600&q=80" alt="Pants Front">
+                    </div>
+                </div>
+                <h3 class="card-title">Dickies 874 Work Pants</h3>
+                <div class="card-price">RM 80</div>
+                <p class="card-details">Size 32x30. Black color. Straight leg fit, barely worn.</p>
+                <div class="card-location">Klang, Selangor</div>
+                <a href="https://wa.me/601161692804?text=Hi!%20I'm%20interested%20in%20buying%20the%20Dickies%20874%20Work%20Pants%20(RM%2080)." target="_blank" class="btn">
+                    Purchase
+                </a>
+            </div>
+
         </div>
     </main>
 
     <footer>
-        <p>&copy; 2026 My Preloved Archive. All items are sold as-is.</p>
+        <a href="https://www.threads.net/@ajmegat" target="_blank" class="social-link">Follow on Threads @ajmegat</a>
+        <p>&copy; 2026 AJ's Preloved Item. All items are sold as-is.</p>
     </footer>
+
+    <!-- Filter Script -->
+    <script>
+        function filterSelection(c) {
+            var x, i;
+            x = document.getElementsByClassName("item");
+            if (c == "all") c = "";
+            
+            // Loop through all items and hide/show them
+            for (i = 0; i < x.length; i++) {
+                x[i].style.display = "none";
+                if (x[i].className.indexOf(c) > -1) {
+                    x[i].style.display = "flex"; // Using flex to keep card layout structure
+                }
+            }
+
+            // Update active state on buttons
+            var btns = document.getElementsByClassName("filter-btn");
+            for (i = 0; i < btns.length; i++) {
+                btns[i].className = btns[i].className.replace(" active", "");
+                if (btns[i].getAttribute("onclick").includes(c || 'all')) {
+                    btns[i].className += " active";
+                }
+            }
+        }
+
+        // Run the filter immediately to show all items on load
+        filterSelection("all");
+    </script>
 
 </body>
 </html>
