@@ -177,7 +177,7 @@
 </main>
 
 <footer>
-    <a href="https://www.threads.com/messages/t/1358468326482945" target="_blank" class="social-link">Message on Threads @ajmegat</a>
+    <a href="https://www.threads.com/penguinthatwrites" target="_blank" class="social-link">Message on Threads @ajmegat</a>
     <p>&copy; 2026 AJ Marketplace. All items are sold as-is.</p>
 </footer>
 
@@ -243,7 +243,7 @@ function buildCard(p) {
     // images is stored as a JSON array of URLs in Supabase
     const images = Array.isArray(p.images) ? p.images : JSON.parse(p.images || '[]');
     const waText = encodeURIComponent(`Hi! I'm interested in buying the ${p.title} (RM ${p.price}).`);
-    const waLink = `https://www.threads.com/messages/t/1358468326482945=${waText}`;
+    const waLink = `https://www.threads.com/penguinthatwrites=${waText}`;
 
     const imgTags = images.length
         ? images.map((src, i) => `<img src="${src}" alt="${p.title} photo ${i+1}" loading="lazy">`).join('')
@@ -260,7 +260,7 @@ function buildCard(p) {
 
     const btnHtml = p.sold
         ? `<span class="btn sold">Sold</span>`
-        : `<a href="${waLink}" target="_blank" rel="noopener" class="btn">Purchase via Threads</a>`;
+        : `<a href="${waLink}" target="_blank" rel="noopener" class="btn">Purchase Now</a>`;
 
     return `
     <div class="card">
