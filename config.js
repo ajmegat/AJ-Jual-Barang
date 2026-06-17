@@ -12,13 +12,13 @@
 // Security (RLS) policies. Never put your service_role key here.
 // ─────────────────────────────────────────────────────────────────
 
-window.SUPABASE_URL      = 'https://YOUR_PROJECT_ID.supabase.co';
-window.SUPABASE_ANON_KEY = 'YOUR_ANON_KEY_HERE';
+window.SUPABASE_URL      = 'https://paqivxfbqlkynpjctook.supabase.co';
+window.SUPABASE_ANON_KEY = 'sb_publishable_9xxrX1m2lR_LY36jYH1RWw_BnMw3Da4';
 
 // Admin password for admin.html
 // This is a simple client-side gate — it keeps casual visitors out
 // but is not a replacement for real auth. Keep this secret.
-window.ADMIN_PASSWORD = 'changeme123';
+window.ADMIN_PASSWORD = 'boCzew-rufhyq-ryrge6';
 
 // Supabase Storage bucket name (create this in your Supabase dashboard)
 window.STORAGE_BUCKET = 'product-images';
