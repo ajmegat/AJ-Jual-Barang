@@ -242,8 +242,8 @@ function renderGrid(products) {
 function buildCard(p) {
     // images is stored as a JSON array of URLs in Supabase
     const images = Array.isArray(p.images) ? p.images : JSON.parse(p.images || '[]');
-  const waText = encodeURIComponent(`Hi! I'm interested in buying the ${p.title} (RM ${p.price}).`);
-    const waLink = `https://www.threads.com/penguinthatwrites=${waText}`;
+    const waText = encodeURIComponent(`Hi! I'm interested in buying the ${p.title} (RM ${p.price}).`);
+    const waLink = `https://wa.me/601161692804?text=${waText}`;
 
     const imgTags = images.length
         ? images.map((src, i) => `<img src="${src}" alt="${p.title} photo ${i+1}" loading="lazy">`).join('')
