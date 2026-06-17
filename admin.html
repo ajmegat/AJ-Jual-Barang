@@ -705,11 +705,10 @@ async function deleteListing(id, title) {
 // ─────────────────────────────────────────────────
 // CONFIG — read from config.js
 // ─────────────────────────────────────────────────
-const SUPABASE_URL      = window.SUPABASE_URL;
-const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY;
-const ADMIN_PASSWORD    = window.ADMIN_PASSWORD;
-const STORAGE_BUCKET    = window.STORAGE_BUCKET || 'product-images';
-
+var SUPABASE_URL      = window.SUPABASE_URL;
+var SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY;
+var ADMIN_PASSWORD    = window.ADMIN_PASSWORD;
+var STORAGE_BUCKET    = window.STORAGE_BUCKET || 'product-images';
 // ─────────────────────────────────────────────────
 // Auth (simple password gate — not cryptographic)
 // ─────────────────────────────────────────────────
